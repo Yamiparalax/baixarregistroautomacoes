@@ -6,7 +6,11 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Optional, Tuple
-from zoneinfo import ZoneInfo
+
+try:
+    from zoneinfo import ZoneInfo
+except Exception:
+    ZoneInfo = None
 
 import pandas as pd
 from google.cloud import bigquery
@@ -15,7 +19,18 @@ from google.cloud import bigquery
 NOME_AUTOMACAO = "BAIXAR_REGISTRO_AUTOMACOES"
 NOME_SCRIPT = Path(__file__).stem.upper()
 NOME_SERVIDOR = "Servidor.py"
-TZ = ZoneInfo("America/Sao_Paulo")
+
+
+def obter_timezone() -> timezone:
+    if ZoneInfo:
+        try:
+            return ZoneInfo("America/Sao_Paulo")
+        except Exception:
+            pass
+    return timezone(timedelta(hours=-3))
+
+
+TZ = obter_timezone()
 INICIO_EXEC_SP = datetime.now(TZ)
 DATA_EXEC = INICIO_EXEC_SP.date().isoformat()
 HORA_EXEC = INICIO_EXEC_SP.strftime("%H:%M:%S")
